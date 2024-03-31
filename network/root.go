@@ -2,18 +2,21 @@ package network
 
 import (	
 	"net/http"
-	"encoding/json"
+	"log"
 	"example.com/m/config"
 	"example.com/m/service"
+	"example.com/m/types"
 )
 
 type Server struct {
 	userService *service.UserService
+	productService *service.ProductService
 }
 
-func NewServer(userService *service.UserService) *Server {
+func NewServer(userService *service.UserService, productService *service.ProductService) *Server {
 	return &Server{
 		userService: userService,
+		productService: productService,
 	}
 }
 
@@ -25,10 +28,28 @@ func StartServer(s *Server) {
 	// HandleRequest 로 라우팅, Spring 의 @RequestMapping 와 유사한 역할
 	http.HandleFunc("/", handleRequest)
 	http.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
-        s.handleUsers(w, r)
-    })
+		_, err := types.HandleServiceFunc(w, r, func() (interface{}, error) {
+			return s.userService.GetAllUsers()
+		})
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	})
+	// 엔드포인트 처리 추가
+	http.HandleFunc("/products", func(w http.ResponseWriter, r *http.Request) {
+		_, err := types.HandleServiceFunc(w, r, func() (interface{}, error) {
+			return s.productService.GetAllProducts()
+		})
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	})
 	// http.ListenAndServe 함수를 사용하여 HTTP 서버를 시작
-	http.ListenAndServe(config.ServerPort, nil)
+	if err := http.ListenAndServe(config.ServerPort, nil); err != nil {
+		log.Fatal(err)
+	}
 }
 
 /*
@@ -36,25 +57,21 @@ func StartServer(s *Server) {
 	- http.Request는 Go 의 인터페이스 타입 (Java 인터페이스와 비슷)
 */
 func handleRequest(w http.ResponseWriter, r *http.Request) {
-	message := "Hello, World!" // 변수 선언 및 초기화
+	message := "NOT SUPPORTED." // 변수 선언 및 초기화 TODO error message
 	w.Write([]byte(message)) // HTTP 요청 처리
 }
-func (s *Server) handleUsers(w http.ResponseWriter, r *http.Request) {
-	// UserService를 사용하여 모든 사용자를 가져옴
-	users, err := s.userService.GetAllUsers()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+func (s *Server) handleRequestWithService(w http.ResponseWriter, r *http.Request, serviceFunc func() ([]byte, error)) {
+    // serviceFunc를 사용하여 서비스 로직을 처리하고 결과를 가져옴
+	data, err := serviceFunc()
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
 
-	// 사용자 데이터를 JSON으로 변환
-	userData, err := json.Marshal(users)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	// HTTP 응답으로 사용자 데이터를 전송
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(userData)
+    // HTTP 응답으로 데이터를 전송
+    w.Header().Set("Content-Type", "application/json")
+    _, err = w.Write(data)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+    }
 }

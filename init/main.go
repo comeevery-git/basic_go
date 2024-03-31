@@ -20,9 +20,11 @@ func main() {
 	// UserRepoository, UserService 구현체 생성
 	userRepo := repository.NewUserRepository(db)
 	userService := service.NewUserService(userRepo)
+	productRepo := repository.NewProductRepository(db)
+	productService := service.NewProductService(productRepo)
 	
 	// Server 구현체 생성
-	server := network.NewServer(userService)
+	server := network.NewServer(userService, productService)
 
 	// Server 시작
 	network.StartServer(server)
