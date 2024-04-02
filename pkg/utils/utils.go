@@ -1,4 +1,4 @@
-package types
+package utils
 
 /**
     어플리케이션 전체에서 공통적으로 사용되는 유틸

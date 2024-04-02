@@ -1,19 +1,13 @@
 package repository
 
-import (
-    "database/sql"
-    "example.com/m/model"
-)
+// domain.repository 인터페이스의 구현체. 실제 데이터베이스 로직 처리
 
-// java 에서처럼 implements 키워드를 사용하여 명시적으로 구현할 필요 없이
-// 특정 구조체가 인터페이스의 모든 메서드를 가지고있다면 그 구조체는 자동으로 그 인터페이스를 구현한다.
-type UserRepository interface {
-    FindByID(id int) (*model.User, error) // 대문자이니 public 접근 가능
-    Save(user *model.User) error // 에러를 반환하면 이 메서드를 호출하는 코드에서 처리필요, 에러가 발생하지 않으면 nil 반환
-    Update(user *model.User) error
-    Delete(id int) error
-	GetAllUsers() ([]*model.User, error)
-}
+import (
+	"database/sql"
+
+	"example.com/m/domain/model"
+	"example.com/m/domain/repository"
+)
 
 // UserRepository 인터페이스를 구현하는 구조체
 type userRepository struct {
@@ -23,10 +17,10 @@ type userRepository struct {
 
 // NewUserRepository는 새 UserRepository를 생성합니다.
 // 이 함수는 보통 main 함수에서 호출하여 UserRepository의 구현체를 생성합니다.
-func NewUserRepository(db *sql.DB) UserRepository {
-	return &userRepository{
-		db: db,
-	}
+func NewUserRepository(db *sql.DB) repository.UserRepository {
+    return &userRepository{
+        db: db,
+    }
 }
 
 
@@ -55,7 +49,7 @@ func (r *userRepository) GetAllUsers() ([]*model.User, error) {
     var users []*model.User
     for rows.Next() {
         user := &model.User{}
-        err := rows.Scan(&user.ID, &user.Name, &user.Email)
+        err := rows.Scan(&user.ID, &user.UserName, &user.UserEmail)
         if err != nil {
             return nil, err
         }
