@@ -1,5 +1,10 @@
 package types
 
+/**
+    어플리케이션 전체에서 공통적으로 사용되는 유틸
+        - 문자열 처리, 날짜 형식 변환 등 범용 함수들
+**/
+
 import (
 	"net/http"
 	"encoding/json"
