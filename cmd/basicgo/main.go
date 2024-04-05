@@ -9,7 +9,7 @@ import ( // Go 는 사용하지 않는 import 를 허용하지 않음
 )
 
 func main() {
-    // 데이터베이스 연결 설정
+	// 데이터베이스 연결 설정
 	dbConfig := database.DBConfig{
 		Username: "root",
 		Password: "dev00",
@@ -21,17 +21,16 @@ func main() {
 	defer db.Close()
 
 	// TODO 외부 서비스 클라이언트 초기화 - 현재 미사용
-    // productClient := client.NewProductClient("http://external-product-service.com")
-    
+	// productClient := client.NewProductClient("http://external-product-service.com")
+
 	// Repoository, Service, UseCase 초기화
 	userRepo := repository.NewUserRepository(db)
-    // TODO 외부 서비스 초기화 - 현재 미사용
-    // productService := service.NewProductService(productClient)
-    userUsecase := usecase.NewUserUsecase(userRepo)
+	// TODO 외부 서비스 초기화 - 현재 미사용
+	// productService := service.NewProductService(productClient)
+	userUsecase := usecase.NewUserUsecase(userRepo)
 
-    // Controller 초기화
-    userController := controller.NewUserController(*userUsecase)
-	
+	// Controller 초기화
+	userController := controller.NewUserController(*userUsecase)
 
 	// Server 구조체를 사용하여 서버 설정 및 시작
 	server := web.NewServer(userController)

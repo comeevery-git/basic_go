@@ -20,8 +20,8 @@ func NewServer(userController *controller.UserController) *Server {
 }
 
 /*
-	- Go 에서는 함수 선언 시 func 키워드 사용
-	- 접근제어자는 변수 대소문자로 구분할 뿐임 (대문자: public, 소문자: private)
+- Go 에서는 함수 선언 시 func 키워드 사용
+- 접근제어자는 변수 대소문자로 구분할 뿐임 (대문자: public, 소문자: private)
 */
 func StartServer(s *Server) {
 	r := mux.NewRouter()
@@ -30,7 +30,7 @@ func StartServer(s *Server) {
 	r.HandleFunc("/", handleHome)
 	r.HandleFunc("/users", s.userController.HandleGetAllUsers).Methods("GET")
 	r.HandleFunc("/users/{id}", s.userController.HandleGetUser).Methods("GET")
-	
+
 	// 추가되지 않은 모든 경로에 대해 "NOT SUPPORTED" 메시지 반환
 	r.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "NOT SUPPORTED.", http.StatusNotFound)
@@ -44,8 +44,8 @@ func StartServer(s *Server) {
 }
 
 /*
-	- Java 와 달리 Go 는 함수 오버로딩을 지원하지 않음
-	- http.Request는 Go 의 인터페이스 타입 (Java 인터페이스와 비슷)
+- Java 와 달리 Go 는 함수 오버로딩을 지원하지 않음
+- http.Request는 Go 의 인터페이스 타입 (Java 인터페이스와 비슷)
 */
 func handleHome(w http.ResponseWriter, r *http.Request) {
 	message := "HELLO, WORLD!"
@@ -53,17 +53,17 @@ func handleHome(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handleRequestWithService(w http.ResponseWriter, r *http.Request, serviceFunc func() ([]byte, error)) {
-    // serviceFunc를 사용하여 서비스 로직을 처리하고 결과를 가져옴
+	// serviceFunc를 사용하여 서비스 로직을 처리하고 결과를 가져옴
 	data, err := serviceFunc()
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-    // HTTP 응답으로 데이터를 전송
-    w.Header().Set("Content-Type", "application/json")
-    _, err = w.Write(data)
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-    }
+	// HTTP 응답으로 데이터를 전송
+	w.Header().Set("Content-Type", "application/json")
+	_, err = w.Write(data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }

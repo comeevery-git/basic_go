@@ -3,6 +3,8 @@ package usecase
 // (API Reqeust) Web(network.go) => Controller => Usecase => Repository
 
 import (
+	"errors"
+
 	"example.com/m/domain/repository"
 	"example.com/m/internal/adapter/presenter"
 )
@@ -31,22 +33,24 @@ func NewUserUsecase(r repository.UserRepository) *UserUsecase {
 
 // To-Be (presenter 사용 후)
 func (u *UserUsecase) GetUser(id int) (presenter.UserResponse, error) {
-    user, err := u.repo.FindByID(id)
-    if err != nil {
-        return presenter.UserResponse{}, err
-    }
-    return presenter.NewUserResponse(user), nil
+	user, err := u.repo.FindByID(id)
+	if err != nil {
+		// return presenter.UserResponse{}, err
+		return presenter.UserResponse{}, errors.New("GetUser Error!")
+	}
+	return presenter.NewUserResponse(user), nil
 }
 
 func (u *UserUsecase) GetAllUsers() ([]presenter.UserResponse, error) {
-    users, err := u.repo.GetAllUsers()
-    if err != nil {
-        return nil, err
-    }
+	users, err := u.repo.GetAllUsers()
+	if err != nil {
+		// return nil, err
+		return nil, errors.New("GetAllUsers Error!")
+	}
 
-    var responses []presenter.UserResponse
-    for _, user := range users {
-        responses = append(responses, presenter.NewUserResponse(user))
-    }
-    return responses, nil
+	var responses []presenter.UserResponse
+	for _, user := range users {
+		responses = append(responses, presenter.NewUserResponse(user))
+	}
+	return responses, nil
 }
