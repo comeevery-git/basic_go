@@ -19,7 +19,7 @@ func Wrap(err error) error {
 
 func wrap(err error, msg string) error {
 	wrapFormat := "%s\n%w" // "{file:line} [func name] msg \n error"
-	pc, file, line, ok := runtime.Caller(2)
+	pc, file, line, ok := runtime.Caller(1)
 
 	if !ok {
 		return fmt.Errorf(wrapFormat, msg, err)

@@ -1,0 +1,634 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>basicgo: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">example.com/m/cmd/basicgo/main.go (0.0%)</option>
+				
+				<option value="file1">example.com/m/external/client/product.go (0.0%)</option>
+				
+				<option value="file2">example.com/m/external/service/product.go (0.0%)</option>
+				
+				<option value="file3">example.com/m/internal/adapter/controller/user.go (0.0%)</option>
+				
+				<option value="file4">example.com/m/internal/adapter/presenter/user.go (25.0%)</option>
+				
+				<option value="file5">example.com/m/internal/adapter/repository/user.go (0.0%)</option>
+				
+				<option value="file6">example.com/m/internal/application/usecase/user.go (83.3%)</option>
+				
+				<option value="file7">example.com/m/pkg/infrastructure/database/db.go (0.0%)</option>
+				
+				<option value="file8">example.com/m/pkg/infrastructure/web/network.go (0.0%)</option>
+				
+				<option value="file9">example.com/m/pkg/utils/errors.go (0.0%)</option>
+				
+				<option value="file10">example.com/m/pkg/utils/utils.go (0.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package main
+
+import ( // Go 는 사용하지 않는 import 를 허용하지 않음
+        "example.com/m/internal/adapter/controller"
+        "example.com/m/internal/adapter/repository"
+        "example.com/m/internal/application/usecase"
+        "example.com/m/pkg/infrastructure/database"
+        "example.com/m/pkg/infrastructure/web"
+)
+
+func main() <span class="cov0" title="0">{
+        // 데이터베이스 연결 설정
+        dbConfig := database.DBConfig{
+                Username: "root",
+                Password: "dev00",
+                Host:     "localhost",
+                Port:     3306,
+                DBName:   "test",
+        }
+        db := database.NewDBConnection(dbConfig)
+        defer db.Close()
+
+        // TODO 외부 서비스 클라이언트 초기화 - 현재 미사용
+        // productClient := client.NewProductClient("http://external-product-service.com")
+
+        // Repoository, Service, UseCase 초기화
+        userRepo := repository.NewUserRepository(db)
+        // TODO 외부 서비스 초기화 - 현재 미사용
+        // productService := service.NewProductService(productClient)
+        userUsecase := usecase.NewUserUsecase(userRepo)
+
+        // Controller 초기화
+        userController := controller.NewUserController(*userUsecase)
+
+        // Server 구조체를 사용하여 서버 설정 및 시작
+        server := web.NewServer(userController)
+        web.StartServer(server)
+}</span>
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package client
+
+import (
+        "encoding/json"
+        "net/http"
+        "strconv"
+
+        "example.com/m/external/dto"
+)
+
+// ProductClient는 외부 상품 서비스 API를 호출하는 클라이언트를 정의합니다.
+type ProductClient struct {
+    baseURL string // 외부 서비스의 기본 URL
+}
+
+// NewProductClient는 ProductClient 인스턴스를 생성하고 반환합니다.
+func NewProductClient(baseURL string) *ProductClient <span class="cov0" title="0">{
+    return &amp;ProductClient{baseURL: baseURL}
+}</span>
+
+// FetchProductDetails는 주어진 상품 ID에 대한 상품 정보를 외부 서비스로부터 가져옵니다.
+func (pc *ProductClient) FetchProductDetails(productID int) (*dto.ProductDetails, error) <span class="cov0" title="0">{
+    // 외부 API 호출
+    resp, err := http.Get(pc.baseURL + "/products/" + strconv.Itoa(productID))
+    if err != nil </span><span class="cov0" title="0">{
+        return nil, err
+    }</span>
+    <span class="cov0" title="0">defer resp.Body.Close()
+
+    var productDetails dto.ProductDetails
+    if err := json.NewDecoder(resp.Body).Decode(&amp;productDetails); err != nil </span><span class="cov0" title="0">{
+        return nil, err
+    }</span>
+
+    <span class="cov0" title="0">return &amp;productDetails, nil</span>
+}</pre>
+		
+		<pre class="file" id="file2" style="display: none">package service
+
+// 외부 서비스(예: 외부 API)와의 통신 로직 구현
+
+import (
+        "example.com/m/external/client"
+        "example.com/m/external/dto"
+)
+type ProductService interface {
+    GetProductDetails(productID int) (*dto.ProductDetails, error)
+}
+
+// ProductService 인터페이스의 구현체
+type productService struct {
+    productClient *client.ProductClient
+}
+
+// productService 인스턴스를 생성 및 반환
+func NewProductService(productClient *client.ProductClient) ProductService <span class="cov0" title="0">{
+    return &amp;productService{productClient: productClient}
+}</span>
+
+// 상품 정보 조회 by productID
+func (s *productService) GetProductDetails(productID int) (*dto.ProductDetails, error) <span class="cov0" title="0">{
+    // ProductClient를 사용하여 외부 상품 정보 서비스로부터 상품 정보를 가져옵니다.
+    return s.productClient.FetchProductDetails(productID)
+}</pre>
+		
+		<pre class="file" id="file3" style="display: none">package controller
+
+import (
+        "encoding/json"
+        "net/http"
+        "strconv"
+
+        "example.com/m/internal/application/usecase"
+        "example.com/m/pkg/utils"
+)
+
+type UserController struct {
+        userUsecase usecase.UserUsecase
+}
+
+func NewUserController(u usecase.UserUsecase) *UserController <span class="cov0" title="0">{
+        return &amp;UserController{userUsecase: u}
+}</span>
+
+func (c *UserController) HandleGetAllUsers(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+        responses, err := c.userUsecase.GetAllUsers()
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WrapWithMessage(err, "HandleGetAllUsers Process Error") // 추가 message가 필요할 때
+                return
+                // http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+                // return
+        }</span>
+
+        // 성공적으로 사용자 정보를 조회한 경우, 결과를 JSON 형식으로 응답합니다.
+        // TODO 공통 응답 처리 필요
+        <span class="cov0" title="0">w.Header().Set("Content-Type", "application/json")
+        if err := json.NewEncoder(w).Encode(responses); err != nil </span><span class="cov0" title="0">{
+                // TODO 공통 오류 처리 필요
+                // http.Error(w, "Error encoding response", http.StatusInternalServerError)
+                utils.WrapWithMessage(err, "HandleGetAllUsers JSON Parse Error")
+                return
+        }</span>
+}
+
+func (c *UserController) HandleGetUser(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+        idStr := r.URL.Query().Get("id")
+        id, err := strconv.Atoi(idStr) // strconv Go 표준 라이브러리를 사용하여 문자열을 int 타입으로 변환
+        if err != nil </span><span class="cov0" title="0">{
+                utils.Wrap(err) // 추가 message가 필요하지 않을 때
+                return
+                // http.Error(w, "Invalid ID", http.StatusBadRequest)
+                // return
+        }</span>
+
+        <span class="cov0" title="0">response, err := c.userUsecase.GetUser(id)
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WrapWithMessage(err, "HandleGetUser Process Error") // 추가 message가 필요할 때
+                return
+                // http.Error(w, err.Error(), http.StatusInternalServerError)
+                // return
+        }</span>
+
+        <span class="cov0" title="0">w.Header().Set("Content-Type", "application/json")
+        json.NewEncoder(w).Encode(response)</span>
+}
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package presenter
+
+import (
+        "encoding/json"
+        "net/http"
+
+        "example.com/m/domain/model"
+)
+
+// UserResponse는 클라이언트에게 반환될 사용자 정보 응답 구조체입니다.
+type UserResponse struct {
+        ID   int    `json:"id"`
+        Name string `json:"name"`
+        // 필요한 다른 필드들...
+}
+
+// NewUserResponse는 도메인 모델을 받아서 응답용 구조체로 변환합니다.
+func NewUserResponse(user *model.User) UserResponse <span class="cov8" title="1">{
+        return UserResponse{
+                ID:   user.ID,
+                Name: user.UserName,
+                // TODO 필요한 필드 변환 처리...
+        }
+}</span>
+
+// WriteJSONResponse는 HTTP 응답으로 JSON 형식의 사용자 정보를 반환합니다.
+func WriteJSONResponse(w http.ResponseWriter, statusCode int, response UserResponse) <span class="cov0" title="0">{
+        w.Header().Set("Content-Type", "application/json")
+        w.WriteHeader(statusCode)
+        json.NewEncoder(w).Encode(response)
+}</pre>
+		
+		<pre class="file" id="file5" style="display: none">package repository
+
+// domain.repository 인터페이스의 구현체. 실제 데이터베이스 로직 처리
+
+import (
+        "database/sql"
+
+        "example.com/m/domain/model"
+        "example.com/m/domain/repository"
+)
+
+// UserRepository 인터페이스를 구현하는 구조체
+type userRepository struct {
+        // DB 연결
+        db *sql.DB
+}
+
+// NewUserRepository는 새 UserRepository를 생성합니다.
+// 이 함수는 보통 main 함수에서 호출하여 UserRepository의 구현체를 생성합니다.
+func NewUserRepository(db *sql.DB) repository.UserRepository <span class="cov0" title="0">{
+    return &amp;userRepository{
+        db: db,
+    }
+}</span>
+
+
+func (r *userRepository) FindByID(id int) (*model.User, error) <span class="cov0" title="0">{
+    return nil, nil
+}</span>
+
+func (r *userRepository) Save(user *model.User) error <span class="cov0" title="0">{
+    return nil
+}</span>
+
+func (r *userRepository) Update(user *model.User) error <span class="cov0" title="0">{
+    return nil
+}</span>
+
+func (r *userRepository) Delete(id int) error <span class="cov0" title="0">{
+    return nil
+}</span>
+func (r *userRepository) GetAllUsers() ([]*model.User, error) <span class="cov0" title="0">{
+        rows, err := r.db.Query("SELECT * FROM users")
+    if err != nil </span><span class="cov0" title="0">{
+        return nil, err
+    }</span>
+    <span class="cov0" title="0">defer rows.Close()
+
+    var users []*model.User
+    for rows.Next() </span><span class="cov0" title="0">{
+        user := &amp;model.User{}
+        err := rows.Scan(&amp;user.ID, &amp;user.UserName, &amp;user.UserEmail)
+        if err != nil </span><span class="cov0" title="0">{
+            return nil, err
+        }</span>
+        <span class="cov0" title="0">users = append(users, user)</span>
+    }
+
+    <span class="cov0" title="0">if err = rows.Err(); err != nil </span><span class="cov0" title="0">{
+        return nil, err
+    }</span>
+
+    <span class="cov0" title="0">return users, nil</span>
+}</pre>
+		
+		<pre class="file" id="file6" style="display: none">package usecase
+
+// (API Reqeust) Web(network.go) =&gt; Controller =&gt; Usecase =&gt; Repository
+
+import (
+        "errors"
+
+        "example.com/m/domain/repository"
+        "example.com/m/internal/adapter/presenter"
+)
+
+// java/spring 의 @Service 유사한 역할
+// Go 에서는 클래스 대신 구조체를 사용하며, 메서드는 이 구조체에 연결된다.
+type UserUsecase struct {
+        repo repository.UserRepository
+}
+
+func NewUserUsecase(r repository.UserRepository) *UserUsecase <span class="cov8" title="1">{
+        return &amp;UserUsecase{repo: r}
+}</span>
+
+// As-Is (presenter 사용 전)
+// func (s *UserUsecase) GetUser(id int) (*model.User, error) {
+//         user, err := s.repo.FindByID(id)
+//         if err != nil {
+//                 return nil, err
+//         }
+//         if user == nil {
+//                 return nil, errors.New("User not found")
+//         }
+//         return user, nil
+// }
+
+// To-Be (presenter 사용 후)
+func (u *UserUsecase) GetUser(id int) (presenter.UserResponse, error) <span class="cov8" title="1">{
+        user, err := u.repo.FindByID(id)
+        if err != nil </span><span class="cov0" title="0">{
+                // return presenter.UserResponse{}, err
+                return presenter.UserResponse{}, errors.New("GetUser Error!")
+        }</span>
+        <span class="cov8" title="1">return presenter.NewUserResponse(user), nil</span>
+}
+
+func (u *UserUsecase) GetAllUsers() ([]presenter.UserResponse, error) <span class="cov8" title="1">{
+        users, err := u.repo.GetAllUsers()
+        if err != nil </span><span class="cov0" title="0">{
+                // return nil, err
+                return nil, errors.New("GetAllUsers Error!")
+        }</span>
+
+        <span class="cov8" title="1">var responses []presenter.UserResponse
+        for _, user := range users </span><span class="cov8" title="1">{
+                responses = append(responses, presenter.NewUserResponse(user))
+        }</span>
+        <span class="cov8" title="1">return responses, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package database
+
+import (
+        "database/sql"
+        "fmt"
+        "log"
+
+        _ "github.com/go-sql-driver/mysql" // MySQL driver, 직접 사용되지 않으므로 _ 사용하여 import
+)
+
+// DBConfig 구조체는 데이터베이스 연결 설정을 위한 구성 정보를 저장합니다.
+type DBConfig struct {
+        Username string
+        Password string
+        Host     string
+        Port     int
+        DBName   string
+}
+
+// NewDBConnection 함수는 DBConfig를 받아서 실제 데이터베이스 연결(*sql.DB)을 생성하고 반환합니다.
+func NewDBConnection(cfg DBConfig) *sql.DB <span class="cov0" title="0">{
+        dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&amp;parseTime=True&amp;loc=Local",
+                cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.DBName)
+
+        db, err := sql.Open("mysql", dsn)
+        if err != nil </span><span class="cov0" title="0">{
+                log.Fatalf("Failed to open database: %v", err)
+        }</span>
+
+        // 데이터베이스 연결 상태를 확인하기 위해 Ping을 시도합니다.
+        <span class="cov0" title="0">if err := db.Ping(); err != nil </span><span class="cov0" title="0">{
+                log.Fatalf("Failed to connect to database: %v", err)
+        }</span>
+
+        <span class="cov0" title="0">log.Println("Database connection established")
+        return db</span>
+}
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">package web
+
+import (
+        "log"
+        "net/http"
+
+        "example.com/m/internal/adapter/controller"
+        "example.com/m/pkg/infrastructure/config"
+        "github.com/gorilla/mux"
+)
+
+type Server struct {
+        userController *controller.UserController
+}
+
+func NewServer(userController *controller.UserController) *Server <span class="cov0" title="0">{
+        return &amp;Server{
+                userController: userController,
+        }
+}</span>
+
+/*
+- Go 에서는 함수 선언 시 func 키워드 사용
+- 접근제어자는 변수 대소문자로 구분할 뿐임 (대문자: public, 소문자: private)
+*/
+func StartServer(s *Server) <span class="cov0" title="0">{
+        r := mux.NewRouter()
+
+        // gorilla/mux 라이브러리 활용하여 라우팅 정의, Spring 의 @RequestMapping 와 유사한 역할
+        r.HandleFunc("/", handleHome)
+        r.HandleFunc("/users", s.userController.HandleGetAllUsers).Methods("GET")
+        r.HandleFunc("/users/{id}", s.userController.HandleGetUser).Methods("GET")
+
+        // 추가되지 않은 모든 경로에 대해 "NOT SUPPORTED" 메시지 반환
+        r.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) </span><span class="cov0" title="0">{
+                http.Error(w, "NOT SUPPORTED.", http.StatusNotFound)
+        }</span>)
+
+        // http.ListenAndServe 함수를 사용하여 HTTP 서버를 시작
+        <span class="cov0" title="0">log.Println("Server is starting on", config.ServerPort)
+        if err := http.ListenAndServe(config.ServerPort, r); err != nil </span><span class="cov0" title="0">{
+                log.Fatal("Failed to start server:", err)
+        }</span>
+}
+
+/*
+- Java 와 달리 Go 는 함수 오버로딩을 지원하지 않음
+- http.Request는 Go 의 인터페이스 타입 (Java 인터페이스와 비슷)
+*/
+func handleHome(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+        message := "HELLO, WORLD!"
+        w.Write([]byte(message)) // HTTP 요청 처리
+}</span>
+
+func (s *Server) handleRequestWithService(w http.ResponseWriter, r *http.Request, serviceFunc func() ([]byte, error)) <span class="cov0" title="0">{
+        // serviceFunc를 사용하여 서비스 로직을 처리하고 결과를 가져옴
+        data, err := serviceFunc()
+        if err != nil </span><span class="cov0" title="0">{
+                http.Error(w, err.Error(), http.StatusInternalServerError)
+                return
+        }</span>
+
+        // HTTP 응답으로 데이터를 전송
+        <span class="cov0" title="0">w.Header().Set("Content-Type", "application/json")
+        _, err = w.Write(data)
+        if err != nil </span><span class="cov0" title="0">{
+                http.Error(w, err.Error(), http.StatusInternalServerError)
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file9" style="display: none">package utils
+
+import (
+        "fmt"
+        "runtime"
+
+        log "github.com/sirupsen/logrus"
+)
+
+func WrapWithMessage(err error, msg string) error <span class="cov0" title="0">{
+        log.Errorf("WrapWithMessage: %+v\n", err)
+        return wrap(err, msg)
+}</span>
+
+func Wrap(err error) error <span class="cov0" title="0">{
+        log.Errorf("Wrap: %+v\n", err)
+        return wrap(err, "")
+}</span>
+
+func wrap(err error, msg string) error <span class="cov0" title="0">{
+        wrapFormat := "%s\n%w" // "{file:line} [func name] msg \n error"
+        pc, file, line, ok := runtime.Caller(1)
+
+        if !ok </span><span class="cov0" title="0">{
+                return fmt.Errorf(wrapFormat, msg, err)
+        }</span>
+
+        // {file:line} [funcName] msg
+        <span class="cov0" title="0">stack := fmt.Sprintf("%s %s", getFuncInfo(pc, file, line), msg)
+        return fmt.Errorf(wrapFormat, stack, err)</span>
+}
+
+func getFuncInfo(pc uintptr, file string, line int) string <span class="cov0" title="0">{
+        f := runtime.FuncForPC(pc) // pc 값을 사용하여 현재 실행 중인 함수의 정보를 얻음
+        funcName := "unknown"      // 함수 이름을 저장할 변수, 기본값은 "unknown"
+        if f != nil </span><span class="cov0" title="0">{
+                funcName = f.Name() // f가 nil이 아니면, 함수의 이름을 가져옴
+        }</span>
+
+        <span class="cov0" title="0">funcInfoFormat := "{%s:%d} [%s]"
+        // 파일 이름, 라인 번호, 함수 이름을 포맷팅하여 문자열로 반환
+        return fmt.Sprintf(funcInfoFormat, file, line, funcName)</span>
+}
+</pre>
+		
+		<pre class="file" id="file10" style="display: none">package utils
+
+/**
+    어플리케이션 전체에서 공통적으로 사용되는 유틸
+        - 문자열 처리, 날짜 형식 변환 등 범용 함수들
+**/
+
+import (
+        "encoding/json"
+        "net/http"
+)
+
+// HTTP 응답에 메시지를 작성하는 함수
+func WriteResponse(w http.ResponseWriter, statusCode int, message string) <span class="cov0" title="0">{
+        w.WriteHeader(statusCode)
+        w.Write([]byte(message))
+}</span>
+
+func HandleServiceFunc(w http.ResponseWriter, r *http.Request, serviceFunc func() (interface{}, error)) (interface{}, error) <span class="cov0" title="0">{
+        data, err := serviceFunc()
+        if err != nil </span><span class="cov0" title="0">{
+                WriteResponse(w, http.StatusInternalServerError, err.Error())
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">jsonData, err := json.Marshal(data)
+        if err != nil </span><span class="cov0" title="0">{
+                WriteResponse(w, http.StatusInternalServerError, err.Error())
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">WriteResponse(w, http.StatusOK, string(jsonData))
+        return data, nil</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>
