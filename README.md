@@ -130,5 +130,22 @@ go mod tidy
 ```
 
 
+---
 
+메모
+
+---
+
+
+- 테스트 스캐폴딩 자동화
+```
+go get -u github.com/cweill/gotests/...
+
+gotests -all -w ./cmd/basicgo/main.go
+// -all: 모든 함수와 메서드에 대한 테스트 생성
+// -w: 생성 된 테스트 코드를 파일로 생성 (해당 옵션이 없으면 stdout 으로 출력함)
+
+gotests -all -w ./*/*
+// * 
+```
 
