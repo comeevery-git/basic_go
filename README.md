@@ -67,7 +67,7 @@
 
 ---
 
-## build, run
+### build, run
 
 Go 소스 코드 컴파일 실행
 ```
@@ -81,7 +81,7 @@ go build -o basicgo ./cmd/basicgo
 ./basicgo
 ```
 
-## test
+### test
 
 현재 디렉토리와 모든 하위 디렉토리에서 `_test.go` 로 끝나는 파일을 찾아
 `Test`로 시작하는 모든 함수를 찾아 테스트 실행 (해당 함수들은 `*testing.T`를 매개변수로 사용)
@@ -107,16 +107,17 @@ go tool cover -html=coverage.out -o coverage.html
 ```
 
 
-## 기타
+### 기타
 
-Go 버전 확인
+버전 확인
 ```
-go version // go version go1.22.1 darwin/amd64
+go version
+// go version go1.22.1 darwin/amd64
 ```
 
 
-Go 모듈 초기화
-- 현재 디렉토리를 example.com/m 이라는 이름으로 모듈 초기화
+모듈 초기화
+- 현재 디렉토리를 `example.com/m` 과 같은 이름으로 모듈 초기화
 `go.mod` 파일을 생성하여 모듈의 이름과 의존성을 정의
 ```
 go mod init example.com/m
@@ -130,13 +131,28 @@ go mod tidy
 ```
 
 
----
+`go get` 명령어를 사용하여 패키지 및 의존성을 추가하며 `$GOPATH/src/<import-path>` 경로에 저장됩니다.
+- `$GOROOT`: Go SDK 설치 디렉토리
+    - ```ex) /usr/local/opt/go/libexec```
+- `$GOPATH`: Go 프로젝트 import 위치, 하위에 src, bin, pkg 디렉토리 존재
+    - ```ex) /Users/mac/go```
+```
+echo $GOPATH
+```
 
-메모
+`go get` 명령어 옵션
+> `go get [-d] [-f] [-t] [-u] [-v] [-fix] [-insecure] [build flags] [packages]`
+> -d : 설치는 하지 않고 소스 파일만 다운로드합니다.
+> -u : 패키지 및 해당 종속성을 업데이트합니다.
+> -t : 패키지에 대한 테스트를 빌드하는 데 필요한 패키지도 다운로드합니다.
+> -v : 진행 및 디버그 출력
+- $GOPATH/bin 디렉토리에 설치됨
 
----
+
+### 추가 의존성
 
 
+#### gotests
 - 테스트 스캐폴딩 자동화
 ```
 go get -u github.com/cweill/gotests/...
@@ -144,8 +160,49 @@ go get -u github.com/cweill/gotests/...
 gotests -all -w ./cmd/basicgo/main.go
 // -all: 모든 함수와 메서드에 대한 테스트 생성
 // -w: 생성 된 테스트 코드를 파일로 생성 (해당 옵션이 없으면 stdout 으로 출력함)
-
+또는
 gotests -all -w ./*/*
-// * 
 ```
 
+
+#### gRPC
+- gRPC 를 사용한 엔드포인트 제공
+```
+go get -u google.golang.org/grpc
+
+go get -u google.golang.org/protobuf/proto
+// go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+// brew install protobuf
+// libprotoc 26.1
+
+
+go get google.golang.org/protobuf/cmd/protoc-gen-go
+// go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+
+// pb.go 파일 생성
+protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative ./proto/user.proto
+```
+
+protoc는 Protocol Buffers의 컴파일러로 .proto 파일을 다양한 언어의 소스 코드로 변환하는 역할을 합니다.
+이렇게 생성된 소스 코드는 gRPC 클라이언트와 서버를 구현하는 데 사용됩니다.
+
+
+protoc-gen-go: protoc의 플러그인으로, .proto 파일을 Go 언어의 소스 코드로 변환하는 역할을 합니다. 이 플러그인을 사용하면 .proto 파일에 정의된 서비스와 메시지 타입에 대한 Go 인터페이스와 구조체를 생성할 수 있습니다.
+
+
+`.proto` 파일에 서비스와 메시지 타입을 정의
+- `./proto/user.proto` 참고
+
+
+`protoc`와 `protoc-gen-go`를 사용하여 이를 Go 코드로 변환
+```
+protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative user.proto
+```
+
+
+grpcurl 설치하여 gRPC 서비스 호출 테스트
+```
+brew install grpcurl
+
+grpcurl -d '{"id": 1}' -plaintext localhost:50051 user.UserService/GetUser
+```

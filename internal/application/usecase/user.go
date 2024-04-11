@@ -3,7 +3,10 @@ package usecase
 // (API Reqeust) Web(network.go) => Controller => Usecase => Repository
 
 import (
-	"errors"
+    "context"
+    "errors"
+
+    pb "example.com/m/proto"
 
 	"example.com/m/domain/repository"
 	"example.com/m/internal/adapter/presenter"
@@ -13,25 +16,54 @@ import (
 // Go 에서는 클래스 대신 구조체를 사용하며, 메서드는 이 구조체에 연결된다.
 type UserUsecase struct {
 	repo repository.UserRepository
+    pb.UnimplementedUserServiceServer // gRPC SERVER - UserServiceServer 인터페이스를 임베드, 서비스가 UserServiceServer 인터페이스 모든 메서드를 구현하지 않아도 컴파일 에러가 발생하지 않음
 }
 
 func NewUserUsecase(r repository.UserRepository) *UserUsecase {
 	return &UserUsecase{repo: r}
 }
 
-// As-Is (presenter 사용 전)
-// func (s *UserUsecase) GetUser(id int) (*model.User, error) {
-// 	user, err := s.repo.FindByID(id)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	if user == nil {
-// 		return nil, errors.New("User not found")
-// 	}
-// 	return user, nil
-// }
+/**
+	gRPC SERVER
+*/
+func (u *UserUsecase) GetUser(ctx context.Context, req *pb.GetUserRequest) (*pb.GetUserResponse, error) {
+    user, err := u.repo.FindByID(int(req.Id))
+    if err != nil {
+        return nil, errors.New("GetUser Error!")
+    }
 
-// To-Be (presenter 사용 후)
+	if user == nil {
+        return nil, errors.New("GetUser Null!")
+    }
+
+    return &pb.GetUserResponse{
+        User: presenter.ConvertUserToResponse(user),
+    }, nil
+}
+
+func (u *UserUsecase) GetAllUsers(ctx context.Context, req *pb.GetAllUsersRequest) (*pb.GetAllUsersResponse, error) {
+    users, err := u.repo.GetAllUsers()
+    if err != nil {
+        return nil, errors.New("GetAllUsers Error!")
+    }
+
+	if users == nil {
+        return nil, errors.New("GetAllUsers Null!")
+    }
+
+    var responses []*pb.User
+    for _, user := range users {
+        responses = append(responses, presenter.ConvertUserToResponse(user))
+    }
+
+    return &pb.GetAllUsersResponse{
+        Users: responses,
+    }, nil
+}
+
+
+/**
+	HTTP SERVER
 func (u *UserUsecase) GetUser(id int) (presenter.UserResponse, error) {
 	user, err := u.repo.FindByID(id)
 	if err != nil {
@@ -54,3 +86,4 @@ func (u *UserUsecase) GetAllUsers() ([]presenter.UserResponse, error) {
 	}
 	return responses, nil
 }
+*/

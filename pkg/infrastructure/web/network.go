@@ -1,13 +1,37 @@
 package web
 
 import (
-	"log"
+	// "log"
 	"net/http"
 
-	"example.com/m/internal/adapter/controller"
-	"example.com/m/pkg/infrastructure/config"
-	"github.com/gorilla/mux"
+	// "example.com/m/internal/adapter/controller"
+	"example.com/m/internal/application/usecase"
+	// "example.com/m/pkg/infrastructure/config"
+	// "github.com/gorilla/mux"
 )
+
+/**
+	gRPC SERVER
+*/
+type Server struct {
+	// gRPC에서는 컨트롤러를 인스턴스화하는 대신 서비스 구현체를 인스턴스화하고 이를 gRPC 서버에 등록한다.
+	// 클라이언트는 서비스 메서드를 호출하여 원격 프로시저 실행
+	userUsecase *usecase.UserUsecase
+}
+
+func NewServer(userUsecase *usecase.UserUsecase) *Server {
+	return &Server{
+		userUsecase: userUsecase,
+	}
+}
+
+/*
+- Go 에서는 함수 선언 시 func 키워드 사용
+- 접근제어자는 변수 대소문자로 구분할 뿐임 (대문자: public, 소문자: private)
+*/
+/*
+	HTTP SERVER
+
 
 type Server struct {
 	userController *controller.UserController
@@ -19,10 +43,6 @@ func NewServer(userController *controller.UserController) *Server {
 	}
 }
 
-/*
-- Go 에서는 함수 선언 시 func 키워드 사용
-- 접근제어자는 변수 대소문자로 구분할 뿐임 (대문자: public, 소문자: private)
-*/
 func StartServer(s *Server) {
 	r := mux.NewRouter()
 
@@ -42,6 +62,7 @@ func StartServer(s *Server) {
 		log.Fatal("Failed to start server:", err)
 	}
 }
+*/
 
 /*
 - Java 와 달리 Go 는 함수 오버로딩을 지원하지 않음

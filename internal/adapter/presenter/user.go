@@ -5,15 +5,33 @@ import (
 	"net/http"
 
 	"example.com/m/domain/model"
+    pb "example.com/m/proto"
 )
 
 // UserResponse는 클라이언트에게 반환될 사용자 정보 응답 구조체입니다.
 type UserResponse struct {
 	ID   int    `json:"id"`
-	Name string `json:"name"`
+	UserName string `json:"user_name"`
 	// 필요한 다른 필드들...
 }
 
+/**
+	gRPC SERVER
+*/
+func ConvertUserToResponse(user *model.User) *pb.User {
+	if user == nil {
+        return nil
+    }
+
+    return &pb.User{
+        Id: int32(user.ID),
+        UserName: user.UserName,
+        // 필요한 다른 필드들...
+    }
+}
+
+/**
+	HTTP SERVER
 // NewUserResponse는 도메인 모델을 받아서 응답용 구조체로 변환합니다.
 func NewUserResponse(user *model.User) UserResponse {
 	return UserResponse{
@@ -22,6 +40,7 @@ func NewUserResponse(user *model.User) UserResponse {
 		// TODO 필요한 필드 변환 처리...
 	}
 }
+*/
 
 // WriteJSONResponse는 HTTP 응답으로 JSON 형식의 사용자 정보를 반환합니다.
 func WriteJSONResponse(w http.ResponseWriter, statusCode int, response UserResponse) {

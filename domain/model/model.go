@@ -8,6 +8,7 @@ type User struct {
 	UseYn bool `json:"use_yn"`
 }
 
+/**
 type Seller struct {
 	ID int `json:"id"`
 	SellerName string `json:"seller_name"`
@@ -16,8 +17,6 @@ type Seller struct {
 	UseYn bool `json:"use_yn"`
 }
 
-
-/**
 type Product struct {
 	ID int `json:"id"`
 	ProductName string `json:product_name`

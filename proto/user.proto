@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package user;
+option go_package = "./user";
+
+
+// The user message represents a user in the system.
+message User {
+    int32 id = 1;
+    string user_name = 2;
+    // Add other fields as necessary
+}
+
+// The GetUserRequest message represents a request to get a user by ID.
+message GetUserRequest {
+    int32 id = 1;
+}
+
+// The GetUserResponse message represents a response from getting a user.
+message GetUserResponse {
+    User user = 1;
+}
+
+// The GetAllUsersRequest message represents a request to get all users.
+message GetAllUsersRequest {
+}
+
+// The GetAllUsersResponse message represents a response from getting all users.
+message GetAllUsersResponse {
+    repeated User users = 1;
+}
+
+// The UserService provides user-related operations.
+service UserService {
+    rpc GetUser(GetUserRequest) returns (GetUserResponse);
+    rpc GetAllUsers(GetAllUsersRequest) returns (GetAllUsersResponse);
+}
