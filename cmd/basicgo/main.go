@@ -10,6 +10,7 @@ import ( /* Go 는 사용하지 않는 import 를 허용하지 않음 */
 	"example.com/m/pkg/infrastructure/database"
 	// "example.com/m/pkg/infrastructure/web"
 	"example.com/m/pkg/infrastructure/config"
+	"example.com/m/internal/application/usecase/experiment"
 
 	"google.golang.org/grpc"
     pb "example.com/m/proto"
@@ -67,6 +68,14 @@ func main() {
         log.Fatalf("failed to listen: %v", err)
     }
     grpcServer := grpc.NewServer()
+
+    /**
+	*	스터디용 임시 코드
+	*/
+	// 1. 메모리 테스트
+	// experiment.RunMemoryTest()
+	// 2. 고루틴 테스트
+	experiment.RunConcurrencyTest()
 
     /**
 		gRPC 서버에 서비스 등록
