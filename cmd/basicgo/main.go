@@ -73,9 +73,10 @@ func main() {
 	*	스터디용 임시 코드
 	*/
 	// 1. 메모리 테스트
-	// experiment.RunMemoryTest()
+	// experiment.RunMemory()
 	// 2. 고루틴 테스트
-	experiment.RunConcurrencyTest()
+	a := []int{7, 2, 8, -9, 4, 0}
+	experiment.RunConcurrency(a)
 
     /**
 		gRPC 서버에 서비스 등록
