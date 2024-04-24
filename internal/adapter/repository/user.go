@@ -1,64 +1,49 @@
 package repository
 
-// domain.repository 인터페이스의 구현체. 실제 데이터베이스 로직 처리
-
 import (
-	"database/sql"
+    "github.com/jinzhu/gorm"
 
-	"example.com/m/domain/model"
-	"example.com/m/domain/repository"
+    "example.com/m/domain/model"
+    "example.com/m/domain/repository"
 )
 
-// UserRepository 인터페이스를 구현하는 구조체
+/**
+ *  gorm.DB: Gorm 라이브러리에서 제공하는 데이터베이스 연결 및 작업을 관리하는 주요 구조체
+ */
 type userRepository struct {
-	// DB 연결
-	db *sql.DB
+    db *gorm.DB
 }
 
-// NewUserRepository는 새 UserRepository를 생성합니다.
-// 이 함수는 보통 main 함수에서 호출하여 UserRepository의 구현체를 생성합니다.
-func NewUserRepository(db *sql.DB) repository.UserRepository {
+func NewUserRepository(db *gorm.DB) repository.UserRepository {
     return &userRepository{
         db: db,
     }
 }
 
-
 func (r *userRepository) FindByID(id int) (*model.User, error) {
-    return nil, nil
+    user := &model.User{}
+    if err := r.db.First(user, id).Error; err != nil {
+        return nil, err
+    }
+    return user, nil
 }
 
 func (r *userRepository) Save(user *model.User) error {
-    return nil
+    return r.db.Create(user).Error
 }
 
 func (r *userRepository) Update(user *model.User) error {
-    return nil
+    return r.db.Save(user).Error
 }
 
 func (r *userRepository) Delete(id int) error {
-    return nil
+    return r.db.Delete(&model.User{}, id).Error
 }
+
 func (r *userRepository) GetAllUsers() ([]*model.User, error) {
-	rows, err := r.db.Query("SELECT * FROM users")
-    if err != nil {
-        return nil, err
-    }
-    defer rows.Close()
-
     var users []*model.User
-    for rows.Next() {
-        user := &model.User{}
-        err := rows.Scan(&user.ID, &user.UserName, &user.UserEmail)
-        if err != nil {
-            return nil, err
-        }
-        users = append(users, user)
-    }
-
-    if err = rows.Err(); err != nil {
+    if err := r.db.Find(&users).Error; err != nil {
         return nil, err
     }
-
     return users, nil
 }
