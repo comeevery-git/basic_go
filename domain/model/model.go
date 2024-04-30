@@ -1,11 +1,12 @@
 package model
 
 type User struct {
-	ID int `json:"id"`
-	UserName string `json:"user_name"`
-	UserEmail string `json:"user_email"`
-	memo *string `json:"memo,omitempty"`
-	UseYn bool `json:"use_yn"`
+	ID        int     `json:"id"`
+	UserName  string  `json:"user_name"`
+	UserEmail string  `json:"user_email"`
+	Password  string  `json:"password"`
+	Memo      *string `json:"memo,omitempty"`
+	UseYn     bool    `json:"use_yn"`
 }
 
 /**

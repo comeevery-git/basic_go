@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+import "google/protobuf/empty.proto";
+
 package user;
 option go_package = "./user";
 
@@ -8,7 +10,10 @@ option go_package = "./user";
 message User {
     int32 id = 1;
     string user_name = 2;
-    // Add other fields as necessary
+    string user_email = 3;
+    string password = 4;
+    string memo = 5;
+    string use_yn = 6;
 }
 
 // The GetUserRequest message represents a request to get a user by ID.
@@ -30,8 +35,17 @@ message GetAllUsersResponse {
     repeated User users = 1;
 }
 
+message CreateUserRequest {
+    User user = 1;
+}
+message CreateUesrTestDataRequest {
+    int32 num_users = 1;
+}
+
 // The UserService provides user-related operations.
 service UserService {
     rpc GetUser(GetUserRequest) returns (GetUserResponse);
     rpc GetAllUsers(GetAllUsersRequest) returns (GetAllUsersResponse);
+    rpc CreateUser(CreateUserRequest) returns (google.protobuf.Empty);
+    rpc CreateUesrTestData(CreateUesrTestDataRequest) returns (google.protobuf.Empty);
 }

@@ -5,29 +5,37 @@ import (
 	"net/http"
 
 	"example.com/m/domain/model"
-    pb "example.com/m/proto"
+	pb "example.com/m/proto"
 )
 
 // UserResponse는 클라이언트에게 반환될 사용자 정보 응답 구조체입니다.
 type UserResponse struct {
-	ID   int    `json:"id"`
-	UserName string `json:"user_name"`
-	// 필요한 다른 필드들...
+	ID        int     `json:"id"`
+	UserName  string  `json:"user_name"`
+	UserEmail string  `json:"user_email"`
+	Password  string  `json:"password"`
+	Memo      *string `json:"memo,omitempty"`
+	UseYn     bool    `json:"use_yn"`
 }
 
-/**
+/*
+*
+
 	gRPC SERVER
 */
 func ConvertUserToResponse(user *model.User) *pb.User {
 	if user == nil {
-        return nil
-    }
+		return nil
+	}
 
-    return &pb.User{
-        Id: int32(user.ID),
-        UserName: user.UserName,
-        // 필요한 다른 필드들...
-    }
+	return &pb.User{
+		Id:        int32(user.ID),
+		UserName:  user.UserName,
+		UserEmail: user.UserEmail,
+		Password:  user.Password,
+		Memo:      user.Memo,
+		UseYn:     user.UseYn,
+	}
 }
 
 /**

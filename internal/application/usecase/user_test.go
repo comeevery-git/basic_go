@@ -1,6 +1,9 @@
 package usecase
 
 import (
+	"context"
+	"fmt"
+	"sync"
 	"testing"
 
 	"example.com/m/domain/model"
@@ -10,9 +13,9 @@ import (
 
 // UserRepository 인터페이스를 구현하는 Mock 객체 정의
 type MockUserRepository struct {
-	repository.UserRepository // UserRepository 인터페이스를 내장하여 인터페이스를 만족시킴
-	FindByIDFunc func(int) (*model.User, error) // 모의 함수 작성
-	GetAllUsersFunc func() ([]*model.User, error)
+	repository.UserRepository                                // UserRepository 인터페이스를 내장하여 인터페이스를 만족시킴
+	FindByIDFunc              func(int) (*model.User, error) // 모의 함수 작성
+	GetAllUsersFunc           func() ([]*model.User, error)
 }
 
 // FindByID 메서드 구현. FindByIDFunc 모의 함수 호출
@@ -37,7 +40,7 @@ func TestUserUsecase_GetUser(t *testing.T) {
 
 	response, err := userUsecase.GetUser(1)
 
-    // github.com/stretchr/testify 라이브러리 활용하여 assert 패키지 사용
+	// github.com/stretchr/testify 라이브러리 활용하여 assert 패키지 사용
 	assert.NoError(t, err) // 에러가 발생하지 않았는지 확인
 	assert.Equal(t, "Lydia", response.Name)
 }
@@ -55,4 +58,29 @@ func TestUserUsecase_GetAllUsers(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, responses, 1)
 	assert.Equal(t, "Lydia", responses[0].Name)
+}
+
+func TestUserUsecase_CreateUser(t *testing.T) {
+	mockRepo := &MockUserRepository{}
+	userUsecase := NewUserUsecase(mockRepo)
+
+	user := &model.User{ID: 1, UserName: "Lydia"}
+	userUsecase.CreateUser(user)
+
+	assert.Equal(t, 1, user.ID)
+	assert.Equal(t, "Lydia", user.UserName)
+}
+
+func TestUserUsecase_CreateUserTestData(t *testing.T) {
+	mockRepo := &MockUserRepository{}
+	userUsecase := NewUserUsecase(mockRepo)
+
+	req := &pb.CreateUserTestDataRequest{
+		NumUsers: 10,
+	}
+
+	userUsecase.CreateUserTestData(context.Background(), req)
+
+	// Assert that the repository's Save method was called 10 times
+	assert.Len(t, mockRepo.SaveCalls(), 10)
 }

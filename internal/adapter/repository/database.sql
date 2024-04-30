@@ -9,5 +9,5 @@ CREATE TABLE `users` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 -- INSERT INTO `test`.`users` (`id`, `name`, `email`) VALUES (<{id: }>, <{name: }>, <{email: }>);
-INSERT INTO `test`.`users` (`id`, `user_name`, `user_email`, `memo`, `use_yn`) VALUES ('1', 'lydia', 'comeevery@gmail.com', `testUser`, `Y`);
+INSERT INTO `test`.`users` (`id`, `user_name`, `user_email`, `memo`, `use_yn`) VALUES ('1', 'Lydia', 'comeevery@gmail.com', `testUser`, `Y`);
 
