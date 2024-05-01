@@ -6,7 +6,7 @@ type User struct {
 	UserEmail string  `json:"user_email"`
 	Password  string  `json:"password"`
 	Memo      *string `json:"memo,omitempty"`
-	UseYn     bool    `json:"use_yn"`
+	Status    string  `json:"status"`
 }
 
 /**

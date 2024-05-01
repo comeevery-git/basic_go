@@ -15,15 +15,18 @@ type UserResponse struct {
 	UserEmail string  `json:"user_email"`
 	Password  string  `json:"password"`
 	Memo      *string `json:"memo,omitempty"`
-	UseYn     bool    `json:"use_yn"`
+	Status    string  `json:"status"`
 }
 
 /*
-*
-
-	gRPC SERVER
+gRPC SERVER
 */
 func ConvertUserToResponse(user *model.User) *pb.User {
+	memo := ""
+	if user.Memo != nil {
+		memo = *user.Memo
+	}
+
 	if user == nil {
 		return nil
 	}
@@ -33,8 +36,19 @@ func ConvertUserToResponse(user *model.User) *pb.User {
 		UserName:  user.UserName,
 		UserEmail: user.UserEmail,
 		Password:  user.Password,
-		Memo:      user.Memo,
-		UseYn:     user.UseYn,
+		Memo:      memo,
+		Status:    user.Status,
+	}
+}
+
+func ConvertUserToModel(user *pb.User) *model.User {
+	return &model.User{
+		ID:        int(user.Id),
+		UserName:  user.UserName,
+		UserEmail: user.UserEmail,
+		Password:  user.Password,
+		Memo:      &user.Memo,
+		Status:    user.Status,
 	}
 }
 

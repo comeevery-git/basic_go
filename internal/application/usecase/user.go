@@ -5,8 +5,11 @@ package usecase
 import (
 	"context"
 	"errors"
+	"fmt"
+	"sync"
 
 	pb "example.com/m/proto"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	"example.com/m/domain/repository"
 	"example.com/m/internal/adapter/presenter"
@@ -15,7 +18,7 @@ import (
 // java/spring 의 @Service 유사한 역할
 // Go 에서는 클래스 대신 구조체를 사용하며, 메서드는 이 구조체에 연결된다.
 type UserUsecase struct {
-	repo repository.UserRepository
+	repo                              repository.UserRepository
 	pb.UnimplementedUserServiceServer // gRPC SERVER - UserServiceServer 인터페이스를 임베드, 서비스가 UserServiceServer 인터페이스 모든 메서드를 구현하지 않아도 컴파일 에러가 발생하지 않음
 }
 
@@ -24,8 +27,8 @@ func NewUserUsecase(r repository.UserRepository) *UserUsecase {
 }
 
 /*
-    gRPC SERVER
- */
+   gRPC SERVER
+*/
 
 func (u *UserUsecase) GetUser(ctx context.Context, req *pb.GetUserRequest) (*pb.GetUserResponse, error) {
 	user, err := u.repo.FindByID(int(req.Id))
@@ -62,38 +65,38 @@ func (u *UserUsecase) GetAllUsers(ctx context.Context, req *pb.GetAllUsersReques
 	}, nil
 }
 
-func (u *UserUsecase) CreateUesr(ctx context.Context, req *pb.CreateUesrRequest) {
+func (u *UserUsecase) CreateUesr(ctx context.Context, req *pb.CreateUserRequest) {
 	user := &pb.User{
-		Id:           req.User.Id,
-		UserName:     req.User.UserName,
-        UserEmail:    req.User.UserEmail,
-        Password:     req.User.Password,
-        Memo:         req.User.Memo,
-        UseYn:        req.User.UseYn,
+		Id:        req.User.Id,
+		UserName:  req.User.UserName,
+		UserEmail: req.User.UserEmail,
+		Password:  req.User.Password,
+		Memo:      req.User.Memo,
+		Status:    "A",
 	}
 
 	u.repo.Save(presenter.ConvertUserToModel(user))
 }
 
-func (u *UserUsecase) CreateUesrTestData(ctx context.Context, req *pb.CreateUesrTestDataRequest) {
-    var wg sync.WaitGroup // WaitGroup: 고루틴이 모두 끝날 때까지 대기할 수 있는 기능 제공
-    for i := 0; i < int(req.NumUsers); i++ {
-        wg.Add(1) // 고루틴이 시작될 때마다 카운트를 1씩 증가. WaitGroup의 Add(): 카운트를 증가시키는 함수
-        go func(i int) { // 고루틴 시작
-            defer wg.Done() // 고루틴이 끝나면 카운트를 1씩 감소. WaitGroup의 Done(): 카운트를 감소시키는 함수
-            user := &pb.User{
-                Id:       int32(i),
-                UserName: fmt.Sprintf("user%d", i),
-                UserEmail: fmt.Sprintf("user%d@test.com", i),
-                Password:  "test",
-                Memo:      "test",
-                UseYn:     "Y",
-            }
-            u.repo.Save(presenter.ConvertUserToModel(user))
-        }
-    }
-
-    
+func (u *UserUsecase) CreateUserTestData(ctx context.Context, req *pb.CreateUserTestDataRequest) (*emptypb.Empty, error) {
+	var wg sync.WaitGroup // WaitGroup: 고루틴이 모두 끝날 때까지 대기할 수 있는 기능 제공
+	for i := 0; i < int(req.NumUsers); i++ {
+		wg.Add(1)        // 고루틴이 시작될 때마다 카운트를 1씩 증가. WaitGroup의 Add(): 카운트를 증가시키는 함수
+		go func(i int) { // 고루틴 시작
+			defer wg.Done() // 고루틴이 끝나면 카운트를 1씩 감소. WaitGroup의 Done(): 카운트를 감소시키는 함수
+			user := &pb.User{
+				Id:        int32(i),
+				UserName:  fmt.Sprintf("user%d", i),
+				UserEmail: fmt.Sprintf("user%d@test.com", i),
+				Password:  "test",
+				Memo:      "test",
+				Status:    "A",
+			}
+			u.repo.Save(presenter.ConvertUserToModel(user))
+		}(i) // 함수를 호출하면서 i를 인자로 전달
+	}
+	wg.Wait() // 모든 고루틴이 끝날 때까지 대기. WaitGroup의 Wait(): 모든 고루틴이 끝날 때까지 대기하는 함수
+	return &emptypb.Empty{}, nil
 }
 
 /**
